@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 import {
   Box,
@@ -24,7 +24,40 @@ export const VerifyForm = () => {
   const location = useLocation();
 
   const [Passkey, setPasskey] = useState(Array(length).fill(""));
+  const [timeLeft, setTimeLeft] = useState(120);
+  const [shorest,setrest] =useState(false)
   const inputRef = useRef([]);
+
+  useEffect(() => {
+    if(formatTime(timeLeft) == "0:00")
+    {
+      setrest(true)
+    }
+
+
+    if (timeLeft <= 0) return;
+
+    const timer = setInterval(() => {
+      setTimeLeft((prevTime) => prevTime - 1);
+    }, 1000);
+
+    // Cleanup when component unmounts or timer ends
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  useEffect(() => {
+    if (!location.state) {
+      navigate("/ForgotPassword");
+    }
+  }, []);
+
+  const formatTime = (seconds) => {
+    const min = Math.floor(seconds / 60)
+      .toString()
+      .padStart(1, "0");
+    const sec = (seconds % 60).toString().padStart(2, "0");
+    return `${min}:${sec}`;
+  };
 
   const hadlecheck = async () => {
     try {
@@ -36,28 +69,29 @@ export const VerifyForm = () => {
           otp: Passkey.join(""),
         }
       );
-      console.log(res.data);
+      console.log(res.data.data.token);
 
       if (res.data.success == true) {
         toast.success("OTP verified successfully");
         navigate("/setNew", { state: res.data });
+        // localStorage.setItem('token',res.data.data.token)
       } else {
         toast.error("Invalid OTP");
       }
     } catch (error) {
       console.log(error);
+      toast.error("Something Wrong!");
     }
   };
 
   const checkfocus = (e, index) => {
-    console.log(Passkey);
-
     if (!isNaN(e.target.value)) {
       const newOtp = [...Passkey];
       newOtp[index] = e.target.value;
       setPasskey(newOtp);
+      console.log(Passkey);
 
-      if (index <= length - 1) {
+      if (e.target.value && index < length - 1) {
         inputRef.current[index + 1].focus();
       }
 
@@ -69,13 +103,20 @@ export const VerifyForm = () => {
 
   const handleKeyDown = (e, index) => {
     console.log(index);
+
     if (e.key === "Backspace" && Passkey[index] == "" && Passkey[index] >= 0) {
       // Move focus to previous input on backspace if current input is empty
-      if (index >= 0) {
+      if (index > 0) {
         inputRef.current[index - 1].focus();
       }
     }
   };
+
+  const resendotp = async () =>{
+   await axios.post('https://api.fiind.app/api/v1/store/auth/requestOTP',{ country_code: "+45", phone_number: location.state })
+   setrest(false)
+   setTimeLeft(120)
+  }
 
   return (
     <React.Fragment>
@@ -173,19 +214,17 @@ export const VerifyForm = () => {
                   checkfocus(e, index);
                 }}
                 inputRef={(element) => (inputRef.current[index] = element)}
-                maxlength="1"
                 inputProps={{ maxLength: 1 }}
-               
                 sx={{
-          
                   fontSize: "20px",
-                  '.css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input':{
-                            textAlign: "center",
+                  ".css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input": {
+                    textAlign: "center",
                   },
                   width: "13%",
-                  padding: "10px", '& .MuiOutlinedInput-notchedOutline': {
-                    border: 'none',
-                },
+                  padding: "10px",
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    border: "none",
+                  },
 
                   // mx:{xl:'9px'},
                   borderRadius: "10px",
@@ -197,7 +236,15 @@ export const VerifyForm = () => {
           </Grid>
 
           <Box sx={{ display: "flex", justifyContent: "center" }}>
-            <Button sx={{ width: "30%" }}>RESEND NOW</Button>
+            {
+
+            }
+            
+            {
+              shorest ? (<Button onClick={resendotp} sx={{ width: "30%" }}>RESEND NOW</Button>):(<Button sx={{ width: "30%" }}>{formatTime(timeLeft)}</Button>)
+            }
+
+          
           </Box>
 
           <Buttonmy

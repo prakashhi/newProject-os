@@ -11,8 +11,9 @@ const Boxui = ({ children, heightbox, forgotid }) => {
           display: "flex",
           justifyContent: "center",
 
-          height: {
-            xl: "100vw",
+          minHeight: {
+            xl: "100vh",
+            xs:'100dvh'
           },
         }}
       >
@@ -29,12 +30,12 @@ const Boxui = ({ children, heightbox, forgotid }) => {
           sx={{
             width: {
               xl: "600px",
-              xs: "340px",
+              xs: "440px",
             },
             height: forgotid == 1 ? heightbox : "480px",
             my: {
               xl: "15%",
-              xs: "40%",
+              xs: "240px",
             },
 
             flexDirection: "column",

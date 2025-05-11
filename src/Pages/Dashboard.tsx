@@ -1,15 +1,37 @@
-import React from 'react'
+import React, { useEffect } from "react";
+import { Box, TextField, Typography } from "@mui/material";
+import { Navigate, useNavigate } from "react-router";
+
+
+
+
+
+
+console.log(JSON.parse(localStorage.getItem('empdata')))
+
+
+
 
 export const Dashboard = () => {
-    return (
-        <React.Fragment>
-        
+    
+    const Navigation = useNavigate();
 
-        <h1>Prakash</h1>
+    useEffect(() => {
+
+        if(!JSON.parse(localStorage.getItem('empdata')))
+        {
+    
+            Navigation('/')
+        }
+
+    }, []); 
 
 
 
-
-        </React.Fragment >
-    )
-}
+  return (
+    <React.Fragment>
+        <h1>Dashboard</h1>
+    
+    </React.Fragment>
+  );
+};

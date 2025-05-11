@@ -85,13 +85,15 @@ export const ForgotPass = () => {
                       values
                     );
 
+        
+
                     if (res.data.success == true) {
                       navigate("/Verify", { state: values.phone_number });
                       toast.success("OTP sent successfully");
                     } 
-                  } catch (error) {
+                  } catch (error) {      
+                     toast.error("400: Store not found");
                     console.log(error);   
-                    toast.error("400: Store not found");
                   } finally {
                     setloading(false);
                   }

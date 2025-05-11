@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import TextField from "@mui/material/TextField";
 import { useState } from "react";
 import { data, useLocation } from "react-router";
@@ -19,11 +19,18 @@ import * as Yup from "yup";
 import axios from "axios";
 
 export const SetnesPassword = () => {
-  document.title = 'Reset Password'
-  const [eyeshow, seteyeshow] = useState(false);
-  const navigate = useNavigate();
+  document.title = "Reset Password";
 
+  const [eyeshow, seteyeshow] = useState(false);
+
+  const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    if (location.state.data.token == null) {
+      navigate("/ForgotPassword");
+    }
+  }, []);
 
   const forgotschema = Yup.object().shape({
     confirm: Yup.string().required("Password is required"),
@@ -36,8 +43,6 @@ export const SetnesPassword = () => {
   const Passshow = () => {
     seteyeshow(!eyeshow);
   };
-
-  // console.log(location.state.data.token)
 
   const [loading, setloading] = useState(false);
 
@@ -109,15 +114,19 @@ export const SetnesPassword = () => {
 
           <Formik
             initialValues={{
-              confirm: " ",
+              confirm: "",
               password: "",
-              token: location.state.data.token,
             }}
-
             validationSchema={forgotschema}
-
             onSubmit={async (values, actions) => {
-              setloading(true)
+              const { password } = values;
+
+              console.log({
+                token: location.state.data.token,
+                password: password,
+              });
+
+              setloading(true);
               console.log(values);
 
               try {
@@ -125,13 +134,17 @@ export const SetnesPassword = () => {
 
                 let res = await axios.post(
                   "https://api.fiind.app//api/v1/store/auth/resetPassword",
-                  values
+                  {"password":password}
                 );
-                if(res.dfata)
-                toast.sucess("400: Store not found");
+                
+                if(res.data)
+                {
+                  toast.sucess("400: Store not found");
+                  navigate('/')
+                }
+                
                 console.log(res)
 
-              
               } catch (error) {
                 toast.error("400: Store not found");
 
@@ -139,7 +152,6 @@ export const SetnesPassword = () => {
               } finally {
                 setloading(false);
               }
-
             }}
           >
             {(props) => {
@@ -151,7 +163,7 @@ export const SetnesPassword = () => {
                     }}
                   >
                     <Box sx={{ display: "flex", gap: "10px" }}>
-                      <img src="./public/Images/Lock.png" width={20} height={20} />
+                      <img src="./Images/Lock.png" width={20} height={20} />
                       <Typography
                         variant="h6"
                         gutterBottom
@@ -179,10 +191,10 @@ export const SetnesPassword = () => {
                           my: "1px",
                           border: "none",
                           width: { lg: "90%", xs: "86%" },
-                          '.css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input':{
-                            p:'10px'
-
-                          },
+                          ".css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input":
+                            {
+                              p: "10px",
+                            },
                           "& .MuiOutlinedInput-notchedOutline": {
                             border: "none",
                           },
@@ -220,7 +232,7 @@ export const SetnesPassword = () => {
                     <Box
                       sx={{ display: "flex", gap: "10px", marginTop: "30px" }}
                     >
-                      <img src="./public/Images/Lock.png" width={20} height={20} />
+                      <img src="./Images/Lock.png" width={20} height={20} />
                       <Typography
                         variant="h6"
                         gutterBottom
@@ -246,10 +258,10 @@ export const SetnesPassword = () => {
                       <TextField
                         sx={{
                           my: "1px",
-                          '.css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input':{
-                            p:'10px'
-
-                          },
+                          ".css-16wblaj-MuiInputBase-input-MuiOutlinedInput-input":
+                            {
+                              p: "10px",
+                            },
                           border: "none",
                           width: { lg: "90%", xs: "86%" },
                           "& .MuiOutlinedInput-notchedOutline": {
